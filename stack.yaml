@@ -3,3 +3,8 @@ resolver: nightly-2022-12-03
 packages:
 - '.'
 
+extra-deps:
+- iCalendar
+- mime-0.4.0.2
+
+allow-newer: true

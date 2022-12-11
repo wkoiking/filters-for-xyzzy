@@ -4,19 +4,24 @@ import Text.ICalendar.Parser
 import Text.ICalendar.Types
 import Data.Time
 import qualified Data.Map as M
+import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Data.Default
 import Control.Monad
 import Data.Maybe
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Set as S
-import Data.List (find, intercalate)
+import Data.List (find, intercalate, isPrefixOf)
+import Control.Applicative ((<|>))
+import Data.Char (isSpace)
+
+-- safe
+import Safe
 
 showCalendar :: FilePath -> IO ()
 showCalendar filepath = do
     eCalender <- parseICalendarFile filepath
     case eCalender of
-        Right (calendars, errs) -> do
+        Right (calendars, _errs) -> do
             mapM_ (putStrLn . showVCalender) calendars
 --             putStrLn $ show $ length calendars
 --             mapM_ putStrLn errs
@@ -38,14 +43,24 @@ showVEvent VEvent{..} = unlinesEx $ catMaybes
     ]
  where summaryStr = maybe "???" showSummary veSummary
        startTimeStr = maybe "mm/dd ??? HH:MM" showDTStart veDTStart
-       mLocationStr = liftM (("    " ++) . showLocation) veLocation
-       mUrlStr = liftM (("    " ++) . T.unpack . otherValue) $ find ((== CI.mk "X-MICROSOFT-SKYPETEAMSMEETINGURL") . otherName) $ S.toList veOther
+       mLocationStr = liftM (("    " ++)) $ showLocation =<< veLocation
+       mUrlStr = liftM (("    " ++) . T.unpack) $ mUrlStrTeams <|> mUrlStrZoom
+       mUrlStrTeams = liftM otherValue $ find ((== CI.mk "X-MICROSOFT-SKYPETEAMSMEETINGURL") . otherName) $ S.toList veOther
+       mUrlStrZoom = veDescription >>= showZoomUrlFromDescription
 
-showLocation :: Location -> String
-showLocation Location{..} = T.unpack locationValue 
+showZoomUrlFromDescription :: Description -> Maybe Text
+showZoomUrlFromDescription Description{..} = headMay $ mapMaybe takeURL $ T.lines descriptionValue
+ where takeURL :: Text -> Maybe Text
+       takeURL txt = find ("https://zoom" `T.isPrefixOf`) $ T.tails txt
+
+showLocation :: Location -> Maybe String
+showLocation Location{..}
+    | "Microsoft Teams" `T.isInfixOf` locationValue = Nothing
+    | "Online meeting" `T.isInfixOf` locationValue = Nothing
+    | otherwise = Just $ T.unpack locationValue
 
 showSummary :: Summary -> String
-showSummary Summary{..} = T.unpack summaryValue
+showSummary Summary{..} = removeFW $ T.unpack summaryValue
 
 showDTStart :: DTStart -> String
 showDTStart (DTStartDateTime dateTime _) = showDateTime dateTime
@@ -68,6 +83,11 @@ showUTCTime t = formatTime defaultTimeLocale "%m/%d %a %H:%M" $ utcToLocalTime j
 replaceTokyoStandardTime :: String -> Maybe String
 replaceTokyoStandardTime "Tokyo Standard Time" = Nothing
 replaceTokyoStandardTime str = Just str
+
+removeFW :: String -> String
+removeFW str
+    | "FW:" `isPrefixOf` str = dropWhile isSpace $ drop 3 str
+    | otherwise = str
 
 showDay :: FormatTime t => t -> String
 showDay = formatTime defaultTimeLocale "%m/%d"

@@ -7,4 +7,4 @@ main = do
     str <- getContents
     putStr $ case parsePipeTable str of
         Nothing -> str
-        Just table -> unlines $ showForest $ tableToForest table
+        Just table -> showPipeTable table

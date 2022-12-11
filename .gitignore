@@ -1,1 +1,9 @@
-/.stack-work/
+
+/**/.cabal-sandbox/
+/**/.stack-work/
+/**/stack.yaml.lock
+/**/.travis.yml
+/**/ToDo.md
+/**/.ghci
+
+/iCalendar/.gitignore

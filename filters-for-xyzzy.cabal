@@ -14,27 +14,56 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base, parsec
---  ghc-options:         -Werror -Wall
-  default-extensions:  StrictData
---   other-extensions:    NoImplicitPrelude
+  exposed-modules:     Lib, ShowCalendar
+  build-depends:       base, parsec, split, iCalendar, time, containers, text, data-default, case-insensitive, safe
+  ghc-options:         -Werror -Wall
+  default-extensions:  StrictData, RecordWildCards, OverloadedStrings
   default-language:    Haskell2010
 
 executable tabulate-itemization-tab-table
   hs-source-dirs:      app/tab-table
   main-is:             Main.hs
   build-depends:       base, filters-for-xyzzy
---  ghc-options:         -threaded -Werror -Wall
+  ghc-options:         -Werror -Wall
   default-extensions:  StrictData
---  other-extensions:    NoImplicitPrelude
   default-language:    Haskell2010
 
 executable tabulate-itemization-pipe-table
   hs-source-dirs:      app/pipe-table
   main-is:             Main.hs
   build-depends:       base, filters-for-xyzzy
---  ghc-options:         -threaded -Werror -Wall
+  ghc-options:         -Werror -Wall
   default-extensions:  StrictData
---  other-extensions:    NoImplicitPrelude
+  default-language:    Haskell2010
+
+executable itemize-pipe-table
+  hs-source-dirs:      app/itemize-pipe-table
+  main-is:             Main.hs
+  build-depends:       base, filters-for-xyzzy
+  ghc-options:         -Werror -Wall
+  default-extensions:  StrictData
+  default-language:    Haskell2010
+
+executable show-calendar
+  hs-source-dirs:      app/show-calendar
+  main-is:             Main.hs
+  build-depends:       base, filters-for-xyzzy
+  ghc-options:         -Werror -Wall
+  default-extensions:  StrictData
+  default-language:    Haskell2010
+
+executable align-pipe-table
+  hs-source-dirs:      app/align-pipe-table
+  main-is:             Main.hs
+  build-depends:       base, filters-for-xyzzy
+  ghc-options:         -Werror -Wall
+  default-extensions:  StrictData
+  default-language:    Haskell2010
+
+executable add-labels
+  hs-source-dirs:      app/add-labels
+  main-is:             Main.hs
+  build-depends:       base, filters-for-xyzzy
+  ghc-options:         -Werror -Wall
+  default-extensions:  StrictData
   default-language:    Haskell2010
